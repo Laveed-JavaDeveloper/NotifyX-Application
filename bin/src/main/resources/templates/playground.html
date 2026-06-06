@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NotifyX — API Playground</title>
+    <meta name="description" content="Interactive API playground for the NotifyX notification engine. Send test notifications, view responses, and generate cURL commands."/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-brand">
+        <div class="brand-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <circle cx="19" cy="5" r="3" fill="#6366f1" stroke="none"/>
+            </svg>
+        </div>
+        <span class="brand-name">Notify<span class="brand-accent">X</span></span>
+        <span class="brand-tag">API Playground</span>
+    </div>
+    <div class="navbar-links">
+        <a href="/" class="nav-link" id="nav-dashboard">Dashboard</a>
+        <a href="/playground" class="nav-link active" id="nav-playground">API Playground</a>
+        <a href="/h2-console" target="_blank" class="nav-link" id="nav-db">DB Console</a>
+    </div>
+    <div class="navbar-right">
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>LIVE</span>
+        </div>
+    </div>
+</nav>
+
+<div class="hero-section hero-section-sm">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+        <h1 class="hero-title">API <span class="gradient-text">Playground</span></h1>
+        <p class="hero-subtitle">Test the NotifyX REST API interactively — select a template, fill the payload, and fire notifications</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="playground-grid">
+
+        <!-- LEFT: Request Builder -->
+        <div class="panel playground-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    Request Builder
+                </div>
+                <span class="method-badge">POST</span>
+            </div>
+
+            <div class="pg-endpoint-bar">
+                <span class="pg-method">POST</span>
+                <span class="pg-url" id="pgUrl">/api/notifications</span>
+            </div>
+
+            <div class="pg-section-label">Template</div>
+            <div class="template-cards" id="templateCards">
+                <div class="template-card active" data-template="otp_template" data-payload='{"otp":"847291","expiry":"10 minutes"}' onclick="selectTemplate(this)">
+                    <div class="tc-icon">🔐</div>
+                    <div class="tc-info">
+                        <div class="tc-name">OTP Code</div>
+                        <div class="tc-desc">Verification / Login OTP</div>
+                    </div>
+                </div>
+                <div class="template-card" data-template="welcome_template" data-payload='{"name":"John Doe","plan":"Pro"}' onclick="selectTemplate(this)">
+                    <div class="tc-icon">👋</div>
+                    <div class="tc-info">
+                        <div class="tc-name">Welcome</div>
+                        <div class="tc-desc">New user onboarding</div>
+                    </div>
+                </div>
+                <div class="template-card" data-template="alert_template" data-payload='{"title":"Suspicious Login","severity":"HIGH","location":"Mumbai, India"}' onclick="selectTemplate(this)">
+                    <div class="tc-icon">🚨</div>
+                    <div class="tc-info">
+                        <div class="tc-name">Alert</div>
+                        <div class="tc-desc">System / security alert</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pg-section-label">Recipient</div>
+            <input type="text" id="pgRecipient" class="form-input" value="demo@notifyx.io" placeholder="email or phone"/>
+
+            <div class="pg-section-label">Payload (JSON)</div>
+            <div class="code-editor-wrap">
+                <textarea id="pgPayload" class="code-editor" rows="6" spellcheck="false">{"otp": "847291", "expiry": "10 minutes"}</textarea>
+                <div class="editor-actions">
+                    <button class="editor-btn" onclick="formatJson()">Format</button>
+                    <button class="editor-btn" onclick="resetPayload()">Reset</button>
+                </div>
+            </div>
+
+            <div class="pg-section-label">Headers</div>
+            <div class="headers-list">
+                <div class="header-row">
+                    <span class="header-key">Content-Type</span>
+                    <span class="header-val">application/json</span>
+                </div>
+                <div class="header-row">
+                    <span class="header-key">X-User-Id</span>
+                    <input type="text" id="pgUserId" class="header-val-input" value="playground-user" placeholder="user id (for rate limiting)"/>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-full" id="pgSendBtn" onclick="sendRequest()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                <span id="pgSendText">Send Request</span>
+                <div class="btn-spinner hidden" id="pgSpinner"></div>
+            </button>
+        </div>
+
+        <!-- RIGHT: Response + cURL -->
+        <div class="panel-stack">
+            <div class="panel playground-panel">
+                <div class="panel-header">
+                    <div class="panel-title">Response</div>
+                    <div class="pg-response-meta" id="pgResponseMeta"></div>
+                </div>
+                <div class="response-block" id="responseBlock">
+                    <div class="feed-empty">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                        <p>Response will appear here</p>
+                        <span>Hit "Send Request" to fire the API</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel playground-panel">
+                <div class="panel-header">
+                    <div class="panel-title">cURL Command</div>
+                    <button class="btn-ghost" id="copyCurlBtn" onclick="copyCurl()">Copy</button>
+                </div>
+                <div class="curl-block" id="curlBlock">
+                    <code id="curlCode">curl -X POST http://localhost:8080/api/notifications \
+  -H "Content-Type: application/json" \
+  -H "X-User-Id: playground-user" \
+  -d '{"recipient":"demo@notifyx.io","templateId":"otp_template","payload":{"otp":"847291","expiry":"10 minutes"}}'</code>
+                </div>
+            </div>
+
+            <!-- API Reference -->
+            <div class="panel playground-panel">
+                <div class="panel-header">
+                    <div class="panel-title">API Reference</div>
+                </div>
+                <div class="api-ref-list">
+                    <div class="api-ref-row">
+                        <span class="method-badge method-post">POST</span>
+                        <code class="api-path">/api/notifications</code>
+                        <span class="api-desc">Send notification</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-get">GET</span>
+                        <code class="api-path">/api/notifications</code>
+                        <span class="api-desc">List all (paginated)</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-get">GET</span>
+                        <code class="api-path">/api/notifications/{id}</code>
+                        <span class="api-desc">Get single</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-post">POST</span>
+                        <code class="api-path">/api/notifications/{id}/retry</code>
+                        <span class="api-desc">Manual retry</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-get">GET</span>
+                        <code class="api-path">/api/notifications/stats</code>
+                        <span class="api-desc">Dashboard stats</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-get">GET</span>
+                        <code class="api-path">/api/stream</code>
+                        <span class="api-desc">SSE live stream</span>
+                    </div>
+                    <div class="api-ref-row">
+                        <span class="method-badge method-get">GET</span>
+                        <code class="api-path">/api/templates</code>
+                        <span class="api-desc">List templates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script th:src="@{/js/playground.js}"></script>
+</body>
+</html>

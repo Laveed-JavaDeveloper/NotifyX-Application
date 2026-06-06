@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/></head>
+<body>
+<div th:fragment="welcome">
+  <h2 style="color:#10b981;font-family:Arial,sans-serif;">Welcome to NotifyX! 🎉</h2>
+  <p style="font-family:Arial,sans-serif;color:#94a3b8;">Hi <strong th:text="${name}">User</strong>, welcome aboard!</p>
+  <p style="font-family:Arial,sans-serif;color:#94a3b8;">Your <strong th:text="${plan}">Free</strong> plan is now active. Start sending notifications in minutes.</p>
+  <div style="margin-top:16px;">
+    <a href="#" style="background:#10b981;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;">Get Started →</a>
+  </div>
+</div>
+</body>
+</html>

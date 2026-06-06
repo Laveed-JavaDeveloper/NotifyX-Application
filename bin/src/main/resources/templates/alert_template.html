@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/></head>
+<body>
+<div th:fragment="alert">
+  <h2 style="color:#ef4444;font-family:Arial,sans-serif;">⚠️ Security Alert</h2>
+  <p style="font-family:Arial,sans-serif;color:#94a3b8;"><strong th:text="${title}">Alert</strong></p>
+  <table style="font-family:Arial,sans-serif;color:#94a3b8;border-collapse:collapse;width:100%;">
+    <tr><td style="padding:4px 0;"><strong>Severity:</strong></td><td th:text="${severity}">HIGH</td></tr>
+    <tr><td style="padding:4px 0;"><strong>Location:</strong></td><td th:text="${location}">Unknown</td></tr>
+  </table>
+  <p style="font-family:Arial,sans-serif;color:#64748b;font-size:12px;margin-top:16px;">If this wasn't you, secure your account immediately.</p>
+</div>
+</body>
+</html>

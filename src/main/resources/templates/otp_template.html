@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/></head>
+<body>
+<div th:fragment="otp">
+  <h2 style="color:#6366f1;font-family:Arial,sans-serif;margin-bottom:8px;">Your Verification Code</h2>
+  <p style="font-family:Arial,sans-serif;color:#94a3b8;">Use the OTP below to complete your login. It expires in <strong th:text="${expiry}">10 minutes</strong>.</p>
+  <div style="background:#1e1b4b;border-radius:12px;padding:24px;text-align:center;margin:16px 0;">
+    <span style="font-size:36px;font-weight:bold;color:#a5b4fc;letter-spacing:8px;" th:text="${otp}">000000</span>
+  </div>
+  <p style="font-family:Arial,sans-serif;color:#64748b;font-size:12px;">Do not share this code with anyone. NotifyX will never ask for it.</p>
+</div>
+</body>
+</html>
